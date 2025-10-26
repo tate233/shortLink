@@ -1,14 +1,12 @@
 package com.tate.admin.dto.resp;
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.tate.admin.common.serialize.PhoneDesensitizationSerializer;
 import lombok.Data;
 
 /**
  * 用户返回参数实体
  */
 @Data
-public class UserRespDTO {
+public class UserActualRespDTO {
 
     /**
      * 用户名
@@ -28,7 +26,7 @@ public class UserRespDTO {
     /**
      * 手机号
      */
-    @JsonSerialize(using = PhoneDesensitizationSerializer.class)
+   //@JsonSerialize(using = PhoneDesensitizationSerializer.class)
     private String phone;
 
     /**
