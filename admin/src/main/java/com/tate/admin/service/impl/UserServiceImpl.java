@@ -14,9 +14,13 @@ import com.tate.admin.dto.resp.UserRespDTO;
 import com.tate.admin.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RBloomFilter;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import static com.tate.admin.common.constant.RedisCacheConstant.LOCK_USER_REGISTER;
 
 /**
  * 用户接口实现层
@@ -29,6 +33,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
 
     @Autowired
     private RBloomFilter<String> userRegisterCachePenetrationBloomFilter;
+
+    @Autowired
+    private RedissonClient redissonClient;
     @Override
     public UserRespDTO getUserByUsername(String username) {
         LambdaQueryWrapper<UserDO> queryWrapper = Wrappers.lambdaQuery(UserDO.class)
@@ -53,10 +60,18 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
         if(hasUsername(requestParam.getUsername())){
             throw new ClientException(UserErrorCodeEnum.USER_NAME_EXIST);
         }
-        int inserted = baseMapper.insert(BeanUtil.toBean(requestParam, UserDO.class));
-        if(inserted < 1){
-            throw new ClientException(UserErrorCodeEnum.USER_SAVE_ERROR);
+        RLock lock = redissonClient.getLock(LOCK_USER_REGISTER + requestParam.getUsername());
+        try {
+            if (lock.tryLock()) {
+                int inserted = baseMapper.insert(BeanUtil.toBean(requestParam, UserDO.class));
+                if (inserted < 1) {
+                    throw new ClientException(UserErrorCodeEnum.USER_SAVE_ERROR);
+                }
+                userRegisterCachePenetrationBloomFilter.add(requestParam.getUsername());
+                return;
+            } throw new ClientException(UserErrorCodeEnum.USER_NAME_EXIST);
+        }finally {
+            lock.unlock();
         }
-        userRegisterCachePenetrationBloomFilter.add(requestParam.getUsername());
     }
 }
