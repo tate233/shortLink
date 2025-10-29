@@ -1,8 +1,12 @@
 package com.tate.admin.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.tate.admin.common.convention.result.Result;
 import com.tate.admin.dao.entity.UserDO;
+import com.tate.admin.dto.req.UserLoginReqDTO;
 import com.tate.admin.dto.req.UserRegisterReqDTO;
+import com.tate.admin.dto.req.UserUpdateReqDTO;
+import com.tate.admin.dto.resp.UserLoginRespDTO;
 import com.tate.admin.dto.resp.UserRespDTO;
 
 /**
@@ -19,4 +23,10 @@ public interface UserService extends IService<UserDO> {
     Boolean hasUsername(String username);
 
     void Register(UserRegisterReqDTO requestParam);
+
+    void update(UserUpdateReqDTO requestParam);
+
+    UserLoginRespDTO login(UserLoginReqDTO requestParam);
+
+    Result<Boolean> checkLogin(String username,String token);
 }
