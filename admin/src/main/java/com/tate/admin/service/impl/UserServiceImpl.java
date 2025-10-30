@@ -143,11 +143,26 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
      * @return
      */
     @Override
-    public Result<Boolean> checkLogin(String username ,String token) {
+    public Boolean checkLogin(String username ,String token) {
         Object token1 = stringRedisTemplate.opsForHash().get("login_" + username, token);
         if(token1 !=null){
-            return Results.success(true);
+            return true;
         }
-        return Results.success(false);
+        return false;
+    }
+
+    /**
+     * 退出登录
+     * @param username
+     * @param token
+     * @return
+     */
+    @Override
+    public Result<Void> logout(String username, String token) {
+        if(checkLogin(username,token)){
+            stringRedisTemplate.delete("login_"+username);
+            return Results.success();
+        }
+        throw new ClientException("token不存在或用户未登录");
     }
 }
