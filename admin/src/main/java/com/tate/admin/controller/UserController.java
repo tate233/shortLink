@@ -22,19 +22,19 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    @GetMapping("/api/shortlink/v1/user/{username}")
+    @GetMapping("/api/short-link/v1/user/{username}")
     public Result<UserRespDTO> getUserByUsername(@PathVariable ("username") String username){
         UserRespDTO userByUsername = userService.getUserByUsername(username);
         return Results.success(userByUsername);
     }
 
-    @GetMapping("/api/shortlink/v1/actual/user/{username}")
+    @GetMapping("/api/short-link/v1/actual/user/{username}")
     public Result<UserActualRespDTO> getActualUserByUsername(@PathVariable ("username") String username){
         UserRespDTO userByUsername = userService.getUserByUsername(username);
         return Results.success(BeanUtil.toBean(userByUsername,UserActualRespDTO.class));
     }
 
-    @GetMapping("/api/shortlink/v1/user/has-username")
+    @GetMapping("/api/short-link/v1/user/has-username")
     public Result<Boolean> hasUsername(@RequestParam("username") String username){
         return Results.success(userService.hasUsername(username));
     }
@@ -42,7 +42,7 @@ public class UserController {
     /**
      * 用户注册
      */
-    @PostMapping("/api/shortlink/v1/user")
+    @PostMapping("/api/short-link/v1/user")
     public Result<Void> register(@RequestBody UserRegisterReqDTO requestParam){
         userService.Register(requestParam);
         return Results.success();
