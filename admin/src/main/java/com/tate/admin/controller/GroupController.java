@@ -2,6 +2,7 @@ package com.tate.admin.controller;
 
 import com.tate.admin.common.convention.result.Result;
 import com.tate.admin.common.convention.result.Results;
+import com.tate.admin.dto.req.ShortLinkGroupSortReqDTO;
 import com.tate.admin.dto.req.ShortLinkGroupUpdateReqDTO;
 import com.tate.admin.dto.resp.ShortLinkGroupRespDTO;
 import com.tate.admin.service.GroupService;
@@ -35,4 +36,23 @@ public class GroupController {
         groupService.updateGroup(requestParam);
         return Results.success();
     }
+
+    /**
+     * 删除短链接分组
+     */
+    @DeleteMapping
+    public Result<Void> deleteGroup(@RequestParam String gid){
+        groupService.deleteGroup(gid);
+        return Results.success();
+    }
+
+    /**
+     * 短链接分组排序
+     */
+    @PostMapping("/sort")
+    public Result<Void> sortGroup(@RequestBody List<ShortLinkGroupSortReqDTO> requestParam){
+        groupService.sortGroup(requestParam);
+        return Results.success();
+    }
+
 }

@@ -2,11 +2,13 @@ package com.tate.admin.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.tate.admin.common.biz.user.UserContext;
 import com.tate.admin.dao.entity.GroupDO;
 import com.tate.admin.dao.mapper.GroupMapper;
+import com.tate.admin.dto.req.ShortLinkGroupSortReqDTO;
 import com.tate.admin.dto.req.ShortLinkGroupUpdateReqDTO;
 import com.tate.admin.dto.resp.ShortLinkGroupRespDTO;
 import com.tate.admin.service.GroupService;
@@ -72,6 +74,40 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, GroupDO> implemen
         GroupDO groupDO = baseMapper.selectOne(lambdaQueryWrapper);
         groupDO.setName(requestParam.getGroupName());
         baseMapper.updateById(groupDO);
+    }
+
+    @Override
+    public void deleteGroup(String gid) {
+        LambdaUpdateWrapper<GroupDO> lambdaUpdateWrapper = Wrappers.lambdaUpdate(GroupDO.class)
+                .eq(GroupDO::getUsername,UserContext.getUsername())
+                .eq(GroupDO::getGid, gid)
+                .eq(GroupDO::getDelFlag, 0);
+        log.info("删除的username:{}",UserContext.getUsername());
+        GroupDO groupDO = new GroupDO();
+        groupDO.setDelFlag(1);
+        int update = baseMapper.update(groupDO, lambdaUpdateWrapper);
+        if(update == 0){
+            throw new IllegalArgumentException("删除短链接分组失败");
+        }
+        log.info("删除短链接分组:{}",gid);
+    }
+
+    /**
+     * 对短链接分组进行排序
+     * @param requestParam
+     */
+    @Override
+    public void sortGroup(List<ShortLinkGroupSortReqDTO> requestParam) {
+        requestParam.forEach(item -> {
+            GroupDO groupDO = GroupDO.builder()
+                    .sortOrder(item.getSortOrder())
+                    .build();
+            LambdaUpdateWrapper<GroupDO> lambdaUpdateWrapper = Wrappers.lambdaUpdate(GroupDO.class)
+                    .eq(GroupDO::getUsername, UserContext.getUsername())
+                    .eq(GroupDO::getGid, item.getGid())
+                    .eq(GroupDO::getDelFlag, 0);
+            baseMapper.update(groupDO, lambdaUpdateWrapper);
+        });
     }
 
     private boolean hasGid(String gid){
