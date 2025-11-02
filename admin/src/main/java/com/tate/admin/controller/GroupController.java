@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/short-link/v1/group")  //v1是指版本号
+@RequestMapping("/api/short-link/admin/v1/group")  //v1是指版本号
 public class GroupController {
     @Autowired
     private GroupService groupService;
